@@ -6,10 +6,9 @@
 
 ## Integrantes do Grupo
 
-- Nome Completo - Matrícula
-- Nome Completo - Matrícula
-- Nome Completo - Matrícula
-- Nome Completo - Matrícula
+- Kauan Rotondaro Dias Alves - 10440110
+- luan  - Matrícula
+- lucas  - Matrícula
 
 ---
 
@@ -18,30 +17,21 @@
 ### 1.1 Compilação
 
 Descreva EXATAMENTE como compilar seu projeto. Inclua todos os comandos necessários.
+Compilar o simulador usando gcc dessa maneira:
 
-**Exemplo:**
-```bash
-gcc -o simulador simulador.c
-```
-
-ou
-
-```bash
-make
-```
+gcc simulador.c -o simulador
 
 ### 1.2 Execução
-
-Forneça exemplos completos de como executar o simulador.
+Para executar o codigo da maneira correta e tendo uma saida de txt com a compilação final use :
 
 **Exemplo com FIFO:**
 ```bash
-./simulador fifo tests/config_1.txt tests/acessos_1.txt
+./simulador fifo tests/config_1.txt tests/acessos_1.txt > output.txt
 ```
 
 **Exemplo com Clock:**
 ```bash
-./simulador clock tests/config_1.txt tests/acessos_1.txt
+./simulador clock tests/config_1.txt tests/acessos_1.txt > output.txt
 ```
 
 ---
@@ -53,82 +43,97 @@ Forneça exemplos completos de como executar o simulador.
 Descreva as estruturas de dados que você escolheu para representar:
 
 **Tabela de Páginas:**
-- Qual estrutura usou? (array, lista, hash map, etc.)
-- Quais informações armazena para cada página?
-- Como organizou para múltiplos processos?
-- **Justificativa:** Por que escolheu essa abordagem?
+Tabela de Páginas
+
+- Estrutura utilizada: array de structs, cada índice representa uma página virtual.
+- Para cada página são armazenados:
+- presente (V-bit)
+- frame onde a página está carregada
+- rbit (Referenced bit)
+- Cada processo possui sua própria tabela, garantindo isolamento.
+Justificativa:
+   Um array é suficiente e eficiente, pois acessamos páginas por índice. É simples, rápido e direto para simular tabelas de páginas do sistema operacional.
 
 **Frames Físicos:**
-- Como representou os frames da memória física?
-- Quais informações armazena para cada frame?
-- Como rastreia frames livres vs ocupados?
-- **Justificativa:** Por que escolheu essa abordagem?
+Frames Físicos
+
+- Estrutura utilizada: array de structs, onde cada posição representa um frame da memória física.
+
+Informações armazenadas:
+- ocupado (indica se o frame está em uso)
+- pid do processo dono da página
+- pagina dentro do processo
+- rbit do frame
+
+   Justificativa:
+   O array torna fácil percorrer todos os frames, encontrar frames livres e acessar diretamente a página carregada.
 
 **Estrutura para FIFO:**
-- Como mantém a ordem de chegada das páginas?
-- Como identifica a página mais antiga?
-- **Justificativa:** Por que escolheu essa abordagem?
+- Estrutura utilizada: fila circular implementada com array.
+
+- Armazena índices de frames na ordem em que foram ocupados.
+
+- Para substituir, basta remover o elemento no head.
+   Justificativa:
+   FIFO depende exclusivamente da ordem de chegada, e uma fila circular é a estrutura mais simples e eficiente para isso.
 
 **Estrutura para Clock:**
-- Como implementou o ponteiro circular?
-- Como armazena e atualiza os R-bits?
-- **Justificativa:** Por que escolheu essa abordagem?
+- Usamos um ponteiro circular (índice inteiro) que avança de 0 até nframes - 1.
+Em cada frame:
+- Se rbit = 1, damos segunda chance e zeramos o bit.
+- Se rbit = 0, este frame é selecionado como vítima.
+   Justificativa:
+   A implementação é leve e eficiente, imitando perfeitamente o comportamento do algoritmo Clock real.
 
 ### 2.2 Organização do Código
 
-Descreva como organizou seu código:
-
-- Quantos arquivos/módulos criou?
-- Qual a responsabilidade de cada arquivo/módulo?
-- Quais são as principais funções e o que cada uma faz?
-
-**Exemplo:**
-```
 simulador.c
-├── main() - lê argumentos e coordena execução
-├── ler_config() - processa arquivo de configuração
-├── processar_acessos() - loop principal de simulação
-├── traduzir_endereco() - calcula página e deslocamento
-├── consultar_tabela() - verifica se página está na memória
-├── tratar_page_fault() - lida com page faults
-├── algoritmo_fifo() - seleciona vítima usando FIFO
-└── algoritmo_clock() - seleciona vítima usando Clock
-```
+├── main()                          # Coordena todo o programa
+├── achar_processo()                # Encontra processo pelo PID
+├── achar_frame_livre()             # Retorna frame livre ou -1
+├── escolher_vitima_clock()         # Implementação do algoritmo Clock
+├── FIFO: fila circular             # push/pop para substituição
+└── lógica principal de simulação   # Tradução, HIT, PAGE FAULT, etc.
+
 
 ### 2.3 Algoritmo FIFO
 
-Explique **como** implementou a lógica FIFO:
+**Funcionamento (em palavras)**
 
-- Como mantém o controle da ordem de chegada?
-- Como seleciona a página vítima?
-- Quais passos executa ao substituir uma página?
-
-**Não cole código aqui.** Explique a lógica em linguagem natural.
+- Cada página carregada ocupa um frame.
+- O índice do frame é inserido no final da fila FIFO.
+- Quando ocorre page fault e não há frame livre:
+   - O frame no início da fila é selecionado como vítima.
+   - Removemos ele (pop) e inserimos o novo frame (push).
+- O FIFO não considera o uso recente, apenas a ordem de chegada.
 
 ### 2.4 Algoritmo Clock
+- Mantemos um ponteiro circular que percorre os frames.
 
-Explique **como** implementou a lógica Clock:
-
-- Como gerencia o ponteiro circular?
-- Como implementou a "segunda chance"?
-- Como trata o caso onde todas as páginas têm R=1?
-- Como garante que o R-bit é setado em todo acesso?
-
-**Não cole código aqui.** Explique a lógica em linguagem natural.
+- Ao encontrar um frame:
+   - Se rbit == 1:
+      - Damos segunda chance: zeramos o rbit e avançamos.
+   - Se rbit == 0:
+      - Esta página é escolhida como vítima.
+- Inserimos a nova página e o ponteiro avança para o próximo frame.
+- O rbit é sempre setado como 1 em todo acesso (HIT ou PAGE FAULT).
 
 ### 2.5 Tratamento de Page Fault
 
 Explique como seu código distingue e trata os dois cenários:
 
 **Cenário 1: Frame livre disponível**
-- Como identifica que há frame livre?
-- Quais passos executa para alocar a página?
+- Procuramos um frame com ocupado = 0.
+- Carregamos a nova página:
+   -  setamos presente=1, frame=f, rbit=1.
+- Para FIFO: adicionamos o frame à fila.
 
 **Cenário 2: Memória cheia (substituição)**
-- Como identifica que a memória está cheia?
-- Como decide qual algoritmo usar (FIFO vs Clock)?
-- Quais passos executa para substituir uma página?
-
+- Se o algoritmo é FIFO → seleciona vítima pelo pop da fila.
+- Se Clock → usa ponteiro circular + rbit.
+- Removemos a página antiga:
+   - atualizamos sua tabela (presente=0)
+- Inserimos a nova página no mesmo frame.
 ---
 
 ## 3. Análise Comparativa FIFO vs Clock
@@ -139,10 +144,10 @@ Preencha a tabela abaixo com os resultados de pelo menos 3 testes diferentes:
 
 | Descrição do Teste | Total de Acessos | Page Faults FIFO | Page Faults Clock | Diferença |
 |-------------------|------------------|------------------|-------------------|-----------|
-| Teste 1 - Básico  |                  |                  |                   |           |
+| Teste 1 - Básico  |                |                 |                   |           |
 | Teste 2 - Memória Pequena |          |                  |                   |           |
-| Teste 3 - Simples |                  |                  |                   |           |
-| Teste Próprio 1   |                  |                  |                   |           |
+| Teste 3 - Simples |                 |                  |                  |           |
+| Teste Próprio 1   |              |                 |                  |           |
 
 ### 3.2 Análise
 
