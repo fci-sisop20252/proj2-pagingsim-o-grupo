@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
+/*tabela*/
 typedef struct {
     int presente;   // 0 = não está na RAM, 1 = está na RAM
     int frame;      // índice do frame onde está
