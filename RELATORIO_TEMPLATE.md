@@ -144,10 +144,10 @@ Preencha a tabela abaixo com os resultados de pelo menos 3 testes diferentes:
 
 | Descrição do Teste | Total de Acessos | Page Faults FIFO | Page Faults Clock | Diferença |
 |-------------------|------------------|------------------|-------------------|-----------|
-| Teste 1 - Básico  |                |                 |                   |           |
-| Teste 2 - Memória Pequena |          |                  |                   |           |
-| Teste 3 - Simples |                 |                  |                  |           |
-| Teste Próprio 1   |              |                 |                  |           |
+| Teste 1 - Básico  |        8        |          5       |          5       |     0      |
+| Teste 2 - Memória Pequena |     10     |          10        |        10           |    0    |
+| Teste 3 - Simples |        7         |         4       |         4        |     0      |
+| Teste Próprio 1   |       100       |         39        |        38          |     1    |
 
 ### 3.2 Análise
 
@@ -239,13 +239,11 @@ Antes de submeter, verifique:
 
 ---
 ## Referências
-Liste aqui quaisquer referências que utilizaram para auxiliar na implementação (livros, artigos, sites, **links para conversas com IAs.**)
-
-
+Slides e anotações das aulas de Sistemas Operacionais (Lucas Figueiredo).
+Conversas e explicações interativas via IA (ChatGPT – OpenAI), utilizadas para esclarecimento de dúvidas de implementação e revisão do código.
 ---
 
 ## Comentários Finais
-
-Use este espaço para quaisquer observações adicionais que julguem relevantes (opcional).
+No geral, esse projeto ajudou bastante a entender como a memória virtual realmente funciona por trás. Implementar os algoritmos na mão, especialmente FIFO e Clock, fez a gente enxergar na prática coisas que antes pareciam só teoria de slide. Também foi legal perceber como pequenos detalhes — como o R-bit, a ordem das substituições e a organização das tabelas — mudam totalmente o comportamento do sistema. Apesar dos desafios, o projeto foi bem útil para fixar os conceitos de Sistemas Operacionais.
 
 ---
